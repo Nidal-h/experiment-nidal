@@ -69,13 +69,8 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
-    
-@app.exception_handler(AuthJWTException)
-def authjwt_exception_handler(request: Request, exc: AuthJWTException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.message}
-    )
+
+
 @app.get("/notes/", response_model=List[Note])
 async def read_notes():
     query = notes.select()
