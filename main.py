@@ -12,7 +12,7 @@ import databases
 
 import sqlalchemy
 
-DATABASE_URL = "postgresql://azorwuixkyghwt:9816619f9b8500431a24099aa63086cc447dadff922c20e2c5d1011585e2c428@ec2-3-219-135-162.compute-1.amazonaws.com:5432/d47rrtnavhtmeo"
+DATABASE_URL = "postgresql://grbmkbpojlrdga:b00f0dfa58c66c819634f77c1d1db08d5aa88824db401eb727386b492c7615b8@ec2-54-165-184-219.compute-1.amazonaws.com:5432/d87trkljd014nb"
 
 database = databases.Database(DATABASE_URL)
 
