@@ -1,9 +1,6 @@
 
 from typing import List
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
+from fastapi import FastAPI
 import databases
 
 import sqlalchemy
@@ -41,8 +38,7 @@ engine = sqlalchemy.create_engine(
 )
 metadata.create_all(engine)
 
-class Settings(BaseModel):
-    authjwt_secret_key: str = "my_jwt_secret"
+
 
 class Note(BaseModel):
     id: int
