@@ -1,6 +1,9 @@
 
 from typing import List
-
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi_jwt_auth import AuthJWT
+from fastapi_jwt_auth.exceptions import AuthJWTException
 import databases
 
 import sqlalchemy
@@ -38,6 +41,9 @@ engine = sqlalchemy.create_engine(
 )
 metadata.create_all(engine)
 
+class Settings(BaseModel):
+    authjwt_secret_key: str = "my_jwt_secret"
+
 class Note(BaseModel):
     id: int
     username: str
@@ -63,6 +69,17 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
+@AuthJWT.load_config
+def get_config():
+    return Settings()
+
+
+@app.exception_handler(AuthJWTException)
+def authjwt_exception_handler(request: Request, exc: AuthJWTException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.message}
+    )
 @app.get("/notes/", response_model=List[Note])
 async def read_notes():
     query = notes.select()
