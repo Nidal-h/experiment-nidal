@@ -1,27 +1,24 @@
-from typing import Optional
-from fastapi import FastAPI, HTTPException, Depends, Request
-from fastapi.responses import JSONResponse
-from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import psycopg2
+
 from typing import List
 
 import databases
 
 import sqlalchemy
 
-DATABASE_URL = "postgresql://grbmkbpojlrdga:b00f0dfa58c66c819634f77c1d1db08d5aa88824db401eb727386b492c7615b8@ec2-54-165-184-219.compute-1.amazonaws.com:5432/d87trkljd014nb"
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+
+DATABASE_URL = "//grbmkbpojlrdga:b00f0dfa58c66c819634f77c1d1db08d5aa88824db401eb727386b492c7615b8@ec2-54-165-184-219.compute-1.amazonaws.com:5432/d87trkljd014nb"
 
 database = databases.Database(DATABASE_URL)
 
 
 metadata = sqlalchemy.MetaData()
 
-users = sqlalchemy.Table(
+notes = sqlalchemy.Table(
 
-    "users",
+    "notes",
 
     metadata,
 
@@ -41,13 +38,10 @@ engine = sqlalchemy.create_engine(
 )
 metadata.create_all(engine)
 
-class Usere(BaseModel):
-    id: int = None
+class Note(BaseModel):
+    id: int
     username: str
     password: str
-
-class Settings(BaseModel):
-    authjwt_secret_key: str = "my_jwt_secret"
 
 app = FastAPI()
 
@@ -61,39 +55,13 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-@AuthJWT.load_config
-def get_config():
-    return Settings()
-
-
-@app.exception_handler(AuthJWTException)
-def authjwt_exception_handler(request: Request, exc: AuthJWTException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.message}
-    )
-@app.get("/", response_model=List[Usere])
-async def read_users():
-    query = users.select()
+@app.get("/notes/", response_model=List[Note])
+async def read_notes():
+    query = notes.select()
     return await database.fetch_all(query)
 
-@app.post("/login", response_model=Usere)
-async def create_user(usere: Usere, Authorize: AuthJWT = Depends()):
-    query = users.insert().values(username=usere.username, password=usere.password)
+@app.post("/notes/", response_model=Note)
+async def create_note(note: Note):
+    query = notes.insert().values(username=note.username, password=note.password)
     last_record_id = await database.execute(query)
-    return {**usere.dict(), "id": last_record_id}   
-
-@app.get('/test-jwt')
-def user(Authorize: AuthJWT = Depends()):
-    
-    Authorize.jwt_required()
-    return {"user": 123124124, 'data': 'jwt test works'} 
-    #current_user = Authorize.get_jwt_subject()
-    #return {"user": current_user, 'data': 'jwt test works'} 
+    return {**note.dict(), "id": last_record_id}
