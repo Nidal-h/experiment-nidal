@@ -7,7 +7,7 @@ import sqlalchemy
 
 from fastapi import FastAPI
 from pydantic import BaseModel
-
+from fastapi.middleware.cors import CORSMiddleware
 
 DATABASE_URL = "postgresql://rbovifsapgrdnx:a13a777891d383da5a438cf33d4186fa1775d4d559d03baf50c7fb0bb0d56557@ec2-54-174-31-7.compute-1.amazonaws.com:5432/dla9e9tffuhs6"
 
@@ -43,8 +43,16 @@ class Note(BaseModel):
     username: str
     password: str
 
+
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 async def startup():
