@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 
-DATABASE_URL = "postgresql://xnfajmqycpswkk:cb5b9e5b905cc9fd2b5605233b11cf6084f0b79a01e1df8869be80d70d08c4e9@ec2-44-195-100-240.compute-1.amazonaws.com:5432/dcig9h8hsmn9if"
+DATABASE_URL = "postgresql://azorwuixkyghwt:9816619f9b8500431a24099aa63086cc447dadff922c20e2c5d1011585e2c428@ec2-3-219-135-162.compute-1.amazonaws.com:5432/d47rrtnavhtmeo"
 
 database = databases.Database(DATABASE_URL)
 
@@ -26,9 +26,9 @@ notes = sqlalchemy.Table(
 
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
 
-    sqlalchemy.Column("text", sqlalchemy.String),
+    sqlalchemy.Column("username", sqlalchemy.String),
 
-    sqlalchemy.Column("completed", sqlalchemy.Boolean),
+    sqlalchemy.Column("password", sqlalchemy.String),
 
 )
 
@@ -47,8 +47,8 @@ class NoteIn(BaseModel):
 
 class Note(BaseModel):
     id: int
-    text: str
-    completed: bool
+    username: str
+    password: str
 
 
 app = FastAPI()
@@ -71,7 +71,8 @@ async def read_notes():
 
 
 @app.post("/notes/", response_model=Note)
-async def create_note(note: NoteIn):
-    query = notes.insert().values(text=note.text, completed=note.completed)
+async def create_note(note: Note):
+    query = notes.insert().values(username=note.username, password=note.password)
     last_record_id = await database.execute(query)
     return {**note.dict(), "id": last_record_id}
+    
