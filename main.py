@@ -69,11 +69,7 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
-@AuthJWT.load_config
-def get_config():
-    return Settings()
-
-
+    
 @app.exception_handler(AuthJWTException)
 def authjwt_exception_handler(request: Request, exc: AuthJWTException):
     return JSONResponse(
